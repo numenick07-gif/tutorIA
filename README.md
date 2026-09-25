@@ -6,6 +6,17 @@
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Activo-success?style=for-the-badge)
 
+## 🔗 Enlaces del Entregable
+
+| Recurso | Enlace Directo |
+| :--- | :--- |
+| 📦 **Repositorio GitHub** | [https://github.com/numenick07-gif/tutorIA.git](https://github.com/numenick07-gif/tutorIA.git) |
+| 🌐 **Landing Page (GitHub Pages)** | [https://numenick07-gif.github.io/tutorIA/#inicio](https://numenick07-gif.github.io/tutorIA/#inicio) |
+| 🚀 **Aplicación Desplegada (Streamlit)** | [https://tutor1.streamlit.app/](https://tutor1.streamlit.app/) |
+| 📄 **Documentación Técnica** | [documentacion.md](https://github.com/numenick07-gif/tutorIA/blob/main/documentacion.md) |
+
+---
+
 ## 📌 Descripción del Proyecto
 **MateIA** es un tutor virtual interactivo guiado por **imágenes didácticas específicamente asociadas a los temas del currículo oficial dominicano (5.º y 6.º Grado Primaria)**, gráficos dinámicos en 2D/3D, laboratorios interactivos y gamificación con insignias.
 
