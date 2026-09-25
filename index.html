@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MateIA - Tutor Visual e Interactivo de Matemáticas</title>
+    <meta name="description" content="Plataforma interactiva de tutoría en matemáticas basada en las Secuencias Didácticas oficiales de 5.° y 6.° Grado Primaria (MINERD / PUCMM).">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Canvas Confetti library for celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1F618D;
+            --primary-gradient: linear-gradient(135deg, #1B4F72 0%, #2980B9 50%, #8E44AD 100%);
+            --secondary: #5DADE2;
+            --accent: #2ECC71;
+            --warning: #F1C40F;
+            --danger: #E74C3C;
+            --bg-dark: #0F172A;
+            --bg-card: #FFFFFF;
+            --bg-body: #F8FAFC;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.05);
+            --shadow-md: 0 10px 25px -5px rgba(31, 97, 141, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #E2E8F0;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .navbar-brand span {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #2980B9;
+            font-weight: 600;
+        }
+
+        .user-pill {
+            background: #EBF5FB;
+            color: #1F618D;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            align-items: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .hero-text h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .hero-text p {
+            font-size: 1.15rem;
+            opacity: 0.92;
+            margin-bottom: 28px;
+        }
+
+        .hero-badge {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #2ECC71;
+            color: white;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: #27AE60;
+            transform: translateY(-2px);
+        }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .hero-img-box img {
+            width: 100%;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            border: 4px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #E2E8F0;
+            padding-bottom: 8px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: #EBF5FB;
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tutor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #E2E8F0;
+        }
+
+        .card-tag {
+            background: #EBF5FB;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .problem-img {
+            width: 100%;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #E2E8F0;
+        }
+
+        .input-group {
+            margin: 20px 0 16px 0;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            border: 2px solid #CBD5E1;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        .hint-box {
+            background: #FEF9E7;
+            border-left: 5px solid var(--warning);
+            padding: 14px;
+            border-radius: 8px;
+            color: #7D6608;
+            font-size: 0.95rem;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .feedback-box {
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .feedback-success {
+            background: #EAFAF1;
+            color: #27AE60;
+            border-left: 5px solid #2ECC71;
+        }
+
+        .feedback-error {
+            background: #FDEDEC;
+            color: #C0392B;
+            border-left: 5px solid #E74C3C;
+        }
+
+        /* --- SIMULATORS (LAB) --- */
+        .lab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 50px;
+        }
+
+        .simulator-box {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1px solid #E2E8F0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .slider-control {
+            margin: 16px 0;
+        }
+
+        .slider-control label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary);
+        }
+
+        .canvas-display {
+            background: #F8FAFC;
+            border-radius: var(--radius-md);
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #CBD5E1;
+            margin-top: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .money-stack {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            height: 120px;
+        }
+
+        .bill-bar {
+            width: 50px;
+            background: linear-gradient(180deg, #2ECC71 0%, #27AE60 100%);
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.75rem;
+            transition: height 0.3s ease;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .gallery-card {
+            background: white;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #E2E8F0;
+        }
+
+        .gallery-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .gallery-card-body {
+            padding: 16px;
+        }
+
+        .gallery-card-body h4 {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .badge-item {
+            background: #F8FAFC;
+            border: 2px solid #E2E8F0;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .badge-item.unlocked {
+            background: #EAFAF1;
+            border-color: #2ECC71;
+        }
+
+        .badge-icon {
+            font-size: 2.2rem;
+            margin-bottom: 6px;
+        }
+
+        footer {
+            background: #0F172A;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 60px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+            .hero, .tutor-grid, .progress-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="#" class="navbar-brand">
+            🧮 <span>MateIA Tutor</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#inicio" class="active">Inicio</a></li>
+            <li><a href="#tutoria">Tutoría PDF</a></li>
+            <li><a href="#laboratorio">Laboratorios</a></li>
+            <li><a href="#galeria">Infografías</a></li>
+            <li><a href="#progreso">Mi Progreso</a></li>
+        </ul>
+        <div class="user-pill">
+            👤 <span id="student-name-display">Estudiante 1</span>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="inicio">
+        <div class="hero-text">
+            <span class="hero-badge">📘 12 Secuencias Didácticas Oficiales (MINERD / PUCMM)</span>
+            <h1>Tutor Inteligente & Visual de Matemáticas</h1>
+            <p>Plataforma interactiva con más de 10 actividades pedagógicas, simuladores de moneda dominicana, túneles viales, cisterna de agua y volumen 3D.</p>
+            <div class="hero-actions">
+                <a href="#tutoria" class="btn btn-primary">👨‍🏫 Explorar Actividades</a>
+                <a href="#laboratorio" class="btn btn-glass">🧪 Simuladores Interactivos</a>
+            </div>
+        </div>
+        <div class="hero-img-box">
+            <img src="./assets/hero_banner.jpg" alt="MateIA Tutor Banner">
+        </div>
+    </section>
+
+    <div class="container">
+
+        <!-- TUTORIA GUIADA PDF CON MAS ACTIVIDADES -->
+        <section id="tutoria" style="scroll-margin-top: 100px;">
+            <h2 class="section-title">👨‍🏫 Tutoría de Secuencias Didácticas (5.º y 6.º Grado)</h2>
+            <p class="section-subtitle">Selecciona cualquiera de las 10 actividades oficiales del libro de texto con andamiaje y comprobación rápida.</p>
+
+            <div class="tab-container">
+                <button class="tab-btn active" id="tab-5to" onclick="switchGrade('5to')">📘 5.º Grado Primaria (5 Actividades)</button>
+                <button class="tab-btn" id="tab-6to" onclick="switchGrade('6to')">📙 6.º Grado Primaria (5 Actividades)</button>
+            </div>
+
+            <div class="tutor-grid">
+                <!-- COLUMNA IZQUIERDA: PROBLEMA SELECCIONADO -->
+                <div class="card">
+                    <span class="card-tag" id="problem-tag">Secuencia Didáctica</span>
+                    <h3 id="problem-title">Cargando...</h3>
+                    <p id="problem-text">Selecciona un ejercicio...</p>
+                    
+                    <img src="./assets/moneda_rd.jpg" alt="Demostración visual" class="problem-img" id="problem-image">
+
+                    <div class="input-group">
+                        <label for="answer-input">Tu Respuesta Numérica:</label>
+                        <input type="text" id="answer-input" class="form-control" placeholder="Escribe tu respuesta aquí...">
+                    </div>
+
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-primary" onclick="checkAnswer()" style="flex: 1;">✅ Comprobar</button>
+                        <button class="btn btn-glass" onclick="showNextHint()" style="background: #EBF5FB; color: var(--primary);">💡 Pedir Pista</button>
+                    </div>
+
+                    <div class="hint-box" id="hint-box"></div>
+                    <div class="feedback-box" id="feedback-box"></div>
+                </div>
+
+                <!-- COLUMNA DERECHA: SELECCIÓN DE ACTIVIDADES -->
+                <div class="card">
+                    <span class="card-tag">📚 Lista Completa de Actividades</span>
+                    <h3>Selecciona una Actividad:</h3>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px; max-height: 480px; overflow-y: auto; padding-right: 6px;" id="exercise-list">
+                        <!-- Cargado dinámicamente por JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LABORATORIO VISUAL CON MAS SIMULADORES -->
+        <section id="laboratorio" style="scroll-margin-top: 100px;">
+            <h2 class="section-title">🧪 Laboratorio Visual y Simuladores Interactivos</h2>
+            <p class="section-subtitle">Simuladores matemáticos diseñados para manipular variables y comprobar leyes científicas y aritméticas.</p>
+
+            <div class="lab-grid">
+                <!-- SIMULADOR 1: BILLETES RD$ -->
+                <div class="simulator-box">
+                    <span class="card-tag">💵 Secuencia 2 - 5.º Grado</span>
+                    <h3>Simulador Billetes RD$</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Descomposición de RD$ 2,000:</p>
+
+                    <div class="slider-control">
+                        <label><span>Papeletas de RD$ 2,000:</span> <span id="rd-count-label">1</span></label>
+                        <input type="range" id="rd-slider" min="1" max="10" value="1" oninput="updateMoneySim()">
+                    </div>
+
+                    <div class="canvas-display">
+                        <h4 id="total-rd-text" style="color: var(--primary);">Total: RD$ 2,000</h4>
+                        <div class="money-stack">
+                            <div class="bill-bar" id="bar-500" style="height: 80px;">4x 500</div>
+                            <div class="bill-bar" id="bar-200" style="height: 100px; background: linear-gradient(180deg, #3498DB, #2980B9);">10x 200</div>
+                            <div class="bill-bar" id="bar-100" style="height: 120px; background: linear-gradient(180deg, #9B59B6, #8E44AD);">20x 100</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIMULADOR 2: TÚNEL CIRCULAR -->
+                <div class="simulator-box">
+                    <span class="card-tag">📐 Secuencia 6 - 6.º Grado</span>
+                    <h3>Túneles y Perímetro</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Radio del túnel circular:</p>
+
+                    <div class="slider-control">
+                        <label><span>Radio r (m):</span> <span id="radius-label">5.75 m</span></label>
+                        <input type="range" id="radius-slider" min="1" max="12" step="0.25" value="5.75" oninput="updateTunnelSim()">
+                    </div>
+
+                    <div class="canvas-display" style="background: #0F172A; color: white;">
+                        <svg id="tunnel-svg" width="160" height="130" viewBox="-100 -100 200 200">
+                            <circle cx="0" cy="0" r="65" fill="none" stroke="#5DADE2" stroke-width="8" />
+                            <line x1="0" y1="0" x2="65" y2="0" stroke="#F1C40F" stroke-width="3" stroke-dasharray="4" />
+                            <text x="32" y="-10" fill="#F1C40F" font-size="14" font-weight="bold" text-anchor="middle">r</text>
+                        </svg>
+                        <div id="tunnel-calc-text" style="font-weight: 700; color: #2ECC71; margin-top: 4px;">P = 36.13 metros</div>
+                    </div>
+                </div>
+
+                <!-- SIMULADOR 3: CONVERSIÓN UNIDADES (YARDAS A PIES) -->
+                <div class="simulator-box">
+                    <span class="card-tag">📏 Secuencia 4 - 5.º Grado</span>
+                    <h3>Conversor de Medidas</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Convierte Yardas a Pies y Pulgadas:</p>
+
+                    <div class="slider-control">
+                        <label><span>Yardas (yd):</span> <span id="yd-label">10 yd</span></label>
+                        <input type="range" id="yd-slider" min="1" max="100" value="10" oninput="updateUnitSim()">
+                    </div>
+
+                    <div class="canvas-display" style="background: #FFF8E7;">
+                        <h4 id="feet-result" style="color: #D35400;">30 Pies (ft)</h4>
+                        <p id="inches-result" style="font-weight: 700; color: #7D6608; margin-top: 6px;">360 Pulgadas (in)</p>
+                    </div>
+                </div>
+
+                <!-- SIMULADOR 4: CAPACIDAD DE CISTERNA (LITROS) -->
+                <div class="simulator-box">
+                    <span class="card-tag">💧 Secuencia 5 - 6.º Grado</span>
+                    <h3>Capacidad de Cisterna</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Calcula litros de agua según profundidad:</p>
+
+                    <div class="slider-control">
+                        <label><span>Profundidad (m):</span> <span id="depth-label">2 m</span></label>
+                        <input type="range" id="depth-slider" min="1" max="6" value="2" oninput="updateTankSim()">
+                    </div>
+
+                    <div class="canvas-display" style="background: #EBF5FB;">
+                        <h4 id="vol-m3" style="color: var(--primary);">Volumen: 12 m³</h4>
+                        <div id="water-liters" style="font-weight: 800; font-size: 1.3rem; color: #2980B9; margin-top: 4px;">12,000 Litros de Agua</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GALERIA INFOGRAFICA -->
+        <section id="galeria" style="scroll-margin-top: 100px;">
+            <h2 class="section-title">📸 Galería Infográfica de los Libros PDF</h2>
+            <p class="section-subtitle">Ilustraciones didácticas vectoriales incluidas en el sistema.</p>
+
+            <div class="gallery-grid">
+                <div class="gallery-card">
+                    <img src="./assets/moneda_rd.jpg" alt="Moneda Dominicana">
+                    <div class="gallery-card-body">
+                        <h4>💵 Billetes RD$</h4>
+                        <p>Descomposición posicional de RD$ 2,000 en Plazas Comerciales de Santo Domingo.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-card">
+                    <img src="./assets/pitagoras_escalera.jpg" alt="Teorema de Pitágoras">
+                    <div class="gallery-card-body">
+                        <h4>🪜 Escalera y Pitágoras</h4>
+                        <p>Demostración gráfica con catetos $a=8\text{ ft}, b=14\text{ ft}$ e hipotenusa $c=16.12\text{ ft}$.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-card">
+                    <img src="./assets/tunel_circular.jpg" alt="Túnel Circular">
+                    <div class="gallery-card-body">
+                        <h4>🚗 Túneles Circulares</h4>
+                        <p>Geometría del círculo en obras viales ($r=5.75\text{ m}, P=36.13\text{ m}$).</p>
+                    </div>
+                </div>
+
+                <div class="gallery-card">
+                    <img src="./assets/fracciones_visual.jpg" alt="Fracciones">
+                    <div class="gallery-card-body">
+                        <h4>🍕 Fracciones y Raciones</h4>
+                        <p>Partes de un todo con gráficos circulares y porcentajes aplicados a medicinas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROGRESO E INSIGNIAS -->
+        <section id="progreso" style="scroll-margin-top: 100px;">
+            <h2 class="section-title">📊 Mi Progreso & Insignias Desbloqueables</h2>
+            <p class="section-subtitle">Gana medallas conforme resuelvas las 10 actividades de los libros de texto.</p>
+
+            <div class="progress-grid">
+                <div class="card" style="text-align: center;">
+                    <h3>🎯 Resumen General</h3>
+                    <div style="font-size: 3.5rem; font-weight: 800; color: var(--primary); margin: 16px 0;" id="score-display">0 / 0</div>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Ejercicios Correctos</p>
+                    
+                    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #E2E8F0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>Tasa de Éxito:</span>
+                            <b id="accuracy-text">0%</b>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🏆 Insignias del Estudiante</h3>
+                    <div class="badge-grid" style="margin-top: 16px;">
+                        <div class="badge-item" id="badge-1">
+                            <div class="badge-icon">🥉</div>
+                            <div class="badge-title">Iniciador Didáctico</div>
+                            <div class="badge-status">1 Ejercicio</div>
+                        </div>
+
+                        <div class="badge-item" id="badge-2">
+                            <div class="badge-icon">🥈</div>
+                            <div class="badge-title">Dominador de Secuencias</div>
+                            <div class="badge-status">3 Aciertos</div>
+                        </div>
+
+                        <div class="badge-item" id="badge-3">
+                            <div class="badge-icon">🥇</div>
+                            <div class="badge-title">Maestro MINERD</div>
+                            <div class="badge-status">5 Aciertos</div>
+                        </div>
+
+                        <div class="badge-item" id="badge-4">
+                            <div class="badge-icon">💎</div>
+                            <div class="badge-title">Gran Matemático</div>
+                            <div class="badge-status">Precisión > 80%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>🧮 <b>MateIA - Tutor Inteligente de Matemáticas</b> | Desarrollado por Liskeidy Rosario Pérez</p>
+        <p style="opacity: 0.7; font-size: 0.8rem; margin-top: 6px;">Basado en las Secuencias Didácticas de Matemática 5.° y 6.° Grado Nivel Primario (PUCMM / INAFOCAM / MINERD)</p>
+    </footer>
+
+    <!-- LOGIC JAVASCRIPT CON 10 ACTIVIDADES -->
+    <script>
+        const exercises = {
+            '5to': [
+                {
+                    id: 'ex5_1',
+                    tag: 'Secuencia 2: Moneda Dominicana',
+                    title: '1. Descomposición del Billete de RD$ 2,000',
+                    text: 'Alexander y su padre van a la Plaza Internacional de Santiago. El padre tiene un billete de RD$ 2,000. Si lo cambia por billetes de RD$ 500 en la boletería, ¿cuántos billetes recibe?',
+                    img: './assets/moneda_rd.jpg',
+                    answer: '4',
+                    hints: ['Divide 2,000 entre 500.', 'Cancela ceros: 20 ÷ 5.', 'Resultado: 4 billetes.']
+                },
+                {
+                    id: 'ex5_2',
+                    tag: 'Secuencia 1: Adición en Plazas Comerciales',
+                    title: '2. Visitas Acumuladas en Sambil',
+                    text: 'En la Plaza Comercial Sambil asistieron 1,250,000 personas en enero y 850,000 en febrero. ¿Cuál es el total acumulado de visitantes?',
+                    img: './assets/moneda_rd.jpg',
+                    answer: '2100000',
+                    hints: ['Suma: 1,250,000 + 850,000.', 'Suma miles primero: 250,000 + 850,000 = 1,100,000.', 'Total: 2,100,000 personas.']
+                },
+                {
+                    id: 'ex5_3',
+                    tag: 'Secuencia 3: División y Empaque',
+                    title: '3. Reparto de Raciones de Alimentos',
+                    text: 'En un centro de acopio escolar de Villa Altagracia hay 1,440 raciones para entregar a 12 escuelas en partes iguales. ¿Cuántas raciones le corresponden a cada escuela?',
+                    img: './assets/hero_banner.jpg',
+                    answer: '120',
+                    hints: ['Plantea la división: 1,440 ÷ 12.', 'Calcula 144 ÷ 12 = 12.', 'Agrega el cero: 120 raciones por escuela.']
+                },
+                {
+                    id: 'ex5_4',
+                    tag: 'Secuencia 4: Medidas de Longitud',
+                    title: '4. Campo de Fútbol en Yardas y Pies',
+                    text: 'El campo de fútbol escolar mide 120 yardas de largo. Si 1 yarda equivale a 3 pies, ¿cuál es la longitud total del campo en pies?',
+                    img: './assets/hero_banner.jpg',
+                    answer: '360',
+                    hints: ['Multiplica el número de yardas por 3.', 'Calcula 120 × 3.', 'Resultado: 360 pies.']
+                },
+                {
+                    id: 'ex5_5',
+                    tag: 'Secuencia 9: Área de Polígonos',
+                    title: '5. Área del Huerto Escolar',
+                    text: 'Un huerto escolar rectangular en San Cristóbal mide 25 m de largo y 14 m de ancho. ¿Cuál es el área total del huerto en metros cuadrados (m²)?',
+                    img: './assets/geometria_3d.jpg',
+                    answer: '350',
+                    hints: ['Fórmula del área del rectángulo: A = largo × ancho.', 'Multiplica 25 × 14.', 'Resultado: 350 m².']
+                }
+            ],
+            '6to': [
+                {
+                    id: 'ex6_1',
+                    tag: 'Secuencia 4: Teorema de Pitágoras',
+                    title: '1. Escalera Apoyada en la Pared',
+                    text: 'Una escalera se apoya en la pared a una altura de 14 pies y su base está a 8 pies de la pared. Calcula la longitud de la escalera redondeada al entero más cercano (ft).',
+                    img: './assets/pitagoras_escalera.jpg',
+                    answer: '16',
+                    hints: ['Fórmula: c² = a² + b² (a=8, b=14).', '8² + 14² = 64 + 196 = 260.', '√260 ≈ 16.12 ft. Redondeado: 16.']
+                },
+                {
+                    id: 'ex6_2',
+                    tag: 'Secuencia 6: Geometría de Túneles',
+                    title: '2. Perímetro de Túnel Circular',
+                    text: 'La entrada circular a un túnel vial tiene un radio de 5.75 m. Calcula su perímetro aproximado redondeado a un decimal (m).',
+                    img: './assets/tunel_circular.jpg',
+                    answer: '36.1',
+                    hints: ['Fórmula P = 2 × π × r.', '2 × 5.75 = 11.5.', '11.5 × 3.1416 = 36.128 m. Redondeado: 36.1.']
+                },
+                {
+                    id: 'ex6_3',
+                    tag: 'Secuencia 1: Números Enteros',
+                    title: '3. Temperatura Bajo Cero en Valle Nuevo',
+                    text: 'En la madrugada en Valle Nuevo (Constanza) la temperatura marcaba -3°C. Al mediodía la temperatura subió 14°C. ¿Qué temperatura marca el termómetro al mediodía en °C?',
+                    img: './assets/hero_banner.jpg',
+                    answer: '11',
+                    hints: ['Suma números enteros: -3 + 14.', 'Como los signos son opuestos, resta los valores absolutos: 14 - 3 = 11.', 'Temperatura final: 11°C.']
+                },
+                {
+                    id: 'ex6_4',
+                    tag: 'Secuencia 2: Operaciones con Decimales',
+                    title: '4. Compra con Decimales en el Supermercado',
+                    text: 'María compra arroz por RD$ 245.50, aceite por RD$ 380.25 y leche por RD$ 174.25. Si paga con un billete de RD$ 1,000, ¿cuánto dinero le devuelven de cambio?',
+                    img: './assets/moneda_rd.jpg',
+                    answer: '200',
+                    hints: ['Suma el costo total: 245.50 + 380.25 + 174.25 = 800.00.', 'Resta del billete de 1,000: 1,000 - 800.', 'Cambio devuelto: RD$ 200.']
+                },
+                {
+                    id: 'ex6_5',
+                    tag: 'Secuencia 5: Volumen y Capacidad',
+                    title: '5. Capacidad de Agua en Cisterna',
+                    text: 'Una cisterna de agua escolar tiene base 2 m × 3 m y profundidad de 2 m (Volumen = 12 m³). Si 1 m³ contiene 1,000 Litros, ¿cuál es su capacidad total en Litros?',
+                    img: './assets/geometria_3d.jpg',
+                    answer: '12000',
+                    hints: ['Volumen V = 2 × 3 × 2 = 12 m³.', 'Multiplica 12 por 1,000 litros.', 'Capacidad: 12,000 Litros.']
+                }
+            ]
+        };
+
+        let currentGrade = '5to';
+        let currentExIndex = 0;
+        let hintIndex = 0;
+        let totalAttempts = 0;
+        let correctCount = 0;
+
+        function switchGrade(grade) {
+            currentGrade = grade;
+            currentExIndex = 0;
+            hintIndex = 0;
+
+            document.getElementById('tab-5to').classList.toggle('active', grade === '5to');
+            document.getElementById('tab-6to').classList.toggle('active', grade === '6to');
+
+            renderExerciseList();
+            loadExercise(0);
+        }
+
+        function renderExerciseList() {
+            const container = document.getElementById('exercise-list');
+            container.innerHTML = '';
+
+            exercises[currentGrade].forEach((ex, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.style.textAlign = 'left';
+                btn.style.background = idx === currentExIndex ? '#EBF5FB' : 'white';
+                btn.style.color = idx === currentExIndex ? 'var(--primary)' : 'var(--text-main)';
+                btn.style.border = '1px solid #CBD5E1';
+                btn.innerHTML = `<b>${ex.title}</b><br><small style="color:var(--text-muted);">${ex.tag}</small>`;
+                btn.onclick = () => loadExercise(idx);
+                container.appendChild(btn);
+            });
+        }
+
+        function loadExercise(index) {
+            currentExIndex = index;
+            hintIndex = 0;
+            const ex = exercises[currentGrade][index];
+
+            document.getElementById('problem-tag').innerText = ex.tag;
+            document.getElementById('problem-title').innerText = ex.title;
+            document.getElementById('problem-text').innerText = ex.text;
+            document.getElementById('problem-image').src = ex.img;
+
+            document.getElementById('answer-input').value = '';
+            document.getElementById('hint-box').style.display = 'none';
+            document.getElementById('feedback-box').style.display = 'none';
+
+            renderExerciseList();
+        }
+
+        function showNextHint() {
+            const ex = exercises[currentGrade][currentExIndex];
+            const hintBox = document.getElementById('hint-box');
+
+            if (hintIndex < ex.hints.length) {
+                hintBox.style.display = 'block';
+                hintBox.innerHTML = `<b>Paso ${hintIndex + 1}:</b> ${ex.hints[hintIndex]}`;
+                hintIndex++;
+            } else {
+                hintBox.innerHTML = '<i>Has visto todas las pistas.</i>';
+            }
+        }
+
+        function checkAnswer() {
+            const userAns = document.getElementById('answer-input').value.trim();
+            const ex = exercises[currentGrade][currentExIndex];
+            const feedbackBox = document.getElementById('feedback-box');
+
+            totalAttempts++;
+
+            if (userAns.replace(/,/g, '') === ex.answer) {
+                correctCount++;
+                feedbackBox.className = 'feedback-box feedback-success';
+                feedbackBox.style.display = 'block';
+                feedbackBox.innerHTML = '🎉 ¡Excelente! Respuesta correcta conforme al libro didáctico.';
+
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+                }
+            } else {
+                feedbackBox.className = 'feedback-box feedback-error';
+                feedbackBox.style.display = 'block';
+                feedbackBox.innerHTML = `❌ Respuesta incorrecta. ¡Usa el botón "Pedir Pista"!`;
+            }
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            document.getElementById('score-display').innerText = `${correctCount} / ${totalAttempts}`;
+            const acc = totalAttempts > 0 ? Math.round((correctCount / totalAttempts) * 100) : 0;
+            document.getElementById('accuracy-text').innerText = `${acc}%`;
+
+            if (totalAttempts >= 1) document.getElementById('badge-1').classList.add('unlocked');
+            if (correctCount >= 3) document.getElementById('badge-2').classList.add('unlocked');
+            if (correctCount >= 5) document.getElementById('badge-3').classList.add('unlocked');
+            if (acc >= 80 && totalAttempts >= 5) document.getElementById('badge-4').classList.add('unlocked');
+        }
+
+        // SIMULADORES
+        function updateMoneySim() {
+            const count = document.getElementById('rd-slider').value;
+            const total = count * 2000;
+            document.getElementById('rd-count-label').innerText = count;
+            document.getElementById('total-rd-text').innerText = `Total: RD$ ${total.toLocaleString()}`;
+
+            document.getElementById('bar-500').innerText = `${count * 4}x 500`;
+            document.getElementById('bar-200').innerText = `${count * 10}x 200`;
+            document.getElementById('bar-100').innerText = `${count * 20}x 100`;
+        }
+
+        function updateTunnelSim() {
+            const r = parseFloat(document.getElementById('radius-slider').value);
+            const p = (2 * Math.PI * r).toFixed(2);
+            document.getElementById('radius-label').innerText = `${r} m`;
+            document.getElementById('tunnel-calc-text').innerText = `P = 2 × π × ${r} = ${p} metros`;
+
+            const svgCircle = document.querySelector('#tunnel-svg circle');
+            const svgLine = document.querySelector('#tunnel-svg line');
+
+            const rScaled = Math.min(80, Math.max(25, r * 12));
+            svgCircle.setAttribute('r', rScaled);
+            svgLine.setAttribute('x2', rScaled);
+        }
+
+        function updateUnitSim() {
+            const yd = parseInt(document.getElementById('yd-slider').value);
+            const ft = yd * 3;
+            const inches = ft * 12;
+            document.getElementById('yd-label').innerText = `${yd} yd`;
+            document.getElementById('feet-result').innerText = `${ft} Pies (ft)`;
+            document.getElementById('inches-result').innerText = `${inches.toLocaleString()} Pulgadas (in)`;
+        }
+
+        function updateTankSim() {
+            const d = parseInt(document.getElementById('depth-slider').value);
+            const vol = 2 * 3 * d;
+            const liters = vol * 1000;
+            document.getElementById('depth-label').innerText = `${d} m`;
+            document.getElementById('vol-m3').innerText = `Volumen: ${vol} m³`;
+            document.getElementById('water-liters').innerText = `${liters.toLocaleString()} Litros de Agua`;
+        }
+
+        window.onload = () => {
+            switchGrade('5to');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "markdown-collab": {
+      "type": "http",
+      "url": "${MARKDOWN_COLLAB_MCP_URL:-http://127.0.0.1:54890/mcp}",
+      "headers": {
+        "Authorization": "Bearer ${MARKDOWN_COLLAB_MCP_TOKEN}"
+      }
+    }
+  }
+}
